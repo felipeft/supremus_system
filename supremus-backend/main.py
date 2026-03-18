@@ -36,7 +36,7 @@ class OrdemServico(BaseModel):
     whatsapp: str
     marca: str
     modelo: str
-    numeroSerie: str  # ADICIONADO PARA COMBINAR COM O FRONT
+    numeroSerie: str  
     acessorios: str
     relato: str
     prioridade: str
@@ -104,3 +104,9 @@ async def registrar_os(item: OrdemServico):
     except Exception as e:
         print(f"Erro: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+import os
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
