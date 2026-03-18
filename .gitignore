@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.json
+!package.json
+dist/
+.vite/
+__pycache__/
