@@ -1,7 +1,7 @@
-echo "fastapi
+fastapi
 uvicorn
 firebase-admin
 gspread
 oauth2client
 pydantic
-python-multipart" > requirements.txt
+python-multipart

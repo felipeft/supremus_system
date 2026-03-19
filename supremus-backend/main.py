@@ -13,7 +13,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173", 
+<<<<<<< HEAD
         "https://supremus-system.vercel.app/" 
+=======
+        "https://supremus-system.vercel.app" 
+>>>>>>> cb59c3d6c9422770594c07e6f66336bad623a223
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -108,8 +112,54 @@ async def registrar_os(item: OrdemServico):
         print(f"Erro: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
+
+
+
+
+
+
+
+
+@app.get("/listar-os")
+async def listar_os():
+    try:
+        docs = db.collection("ordens_servico").stream()
+        lista_completa = []
+
+        for doc in docs:
+            dados = doc.to_dict()
+            lista_completa.append({
+                "os": dados.get("os_completa"),
+                "equipamento": f"{dados.get('marca')} {dados.get('modelo')}",
+                "cliente": dados.get("nome"),
+                "entrada": dados.get("data_entrada").split(" ")[0], # Apenas a data
+                "prazo": dados.get("data_limite_triagem"),
+                "status": dados.get("status"),
+                "cor": dados.get("cor_prioridade", "Verde") # Cor definida no cadastro
+            })
+
+        em_andamento = [os for os in lista_completa if os["status"] != "Pronto"]
+        finalizados = [os for os in lista_completa if os["status"] == "Pronto"]
+
+
+        em_andamento.sort(key=lambda x: datetime.strptime(x["prazo"], "%d/%m/%Y"))
+
+        return em_andamento + finalizados
+
+    except Exception as e:
+        print(f"Erro ao listar: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+
 import os
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+
+
