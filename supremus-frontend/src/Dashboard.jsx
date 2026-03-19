@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const [listaOS, setListaOS] = useState([]);
@@ -18,7 +18,6 @@ export default function Dashboard() {
       });
   }, []);
 
-  // Mapeamento de cores Tailwind baseado no texto vindo do banco
   const mapaCores = {
     "Verde": "bg-green-500",
     "Azul": "bg-blue-500",
@@ -29,9 +28,9 @@ export default function Dashboard() {
 
   if (carregando) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 text-blue-600">
+      <div className="flex flex-col items-center justify-center p-20 text-[#24414d]">
         <Loader2 className="animate-spin" size={48} />
-        <p className="mt-4 font-bold uppercase text-xs tracking-widest">Consultando Mago do Firebase...</p>
+        <p className="mt-4 font-bold uppercase text-xs tracking-widest">Sincronizando com Firebase...</p>
       </div>
     );
   }
@@ -39,22 +38,22 @@ export default function Dashboard() {
   return (
     <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="font-black uppercase text-blue-800 tracking-tighter">Fila de Trabalho Intercalada</h2>
+        <h2 className="font-black uppercase text-[#24414d] tracking-tighter">Fila de Trabalho</h2>
         <div className="flex gap-2">
-           <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">PRAZO ATUALIZADO</span>
+           <span className="text-[10px] bg-[#f8e309] text-[#24414d] px-2 py-1 rounded-full font-bold uppercase">Prazo Atualizado</span>
         </div>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-100 text-[10px] uppercase tracking-widest text-gray-500 border-b">
+            <tr className="bg-[#24414d] text-[10px] uppercase tracking-widest text-white border-b border-[#f8e309]">
               <th className="p-4">OS</th>
               <th className="p-4">Equipamento</th>
               <th className="p-4">Cliente</th>
               <th className="p-4">Entrada</th>
-              <th className="p-4 text-center">Prazo</th>
-              <th className="p-4 text-right">Status</th>
+              <th className="p-4 text-center">Prazo Final</th>
+              <th className="p-4 text-right">Prioridade</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -64,12 +63,12 @@ export default function Dashboard() {
               </tr>
             ) : (
               listaOS.map((item) => (
-                <tr key={item.os} className="hover:bg-blue-50 transition-colors group">
+                <tr key={item.os} className="hover:bg-gray-50 transition-colors group">
                   <td className="p-4 font-bold text-sm text-gray-400">#{item.os}</td>
-                  <td className="p-4 font-semibold text-sm">{item.equipamento}</td>
+                  <td className="p-4 font-semibold text-sm text-[#24414d]">{item.equipamento}</td>
                   <td className="p-4 text-sm text-gray-600">{item.cliente}</td>
                   <td className="p-4 text-xs text-gray-400">{item.entrada}</td>
-                  <td className="p-4 text-center font-black text-blue-700 text-sm">{item.prazo}</td>
+                  <td className="p-4 text-center font-black text-[#24414d] text-sm bg-yellow-50 border-x border-yellow-100">{item.prazo}</td>
                   <td className="p-4 flex items-center justify-end gap-3">
                     <span className="text-[10px] font-bold uppercase text-gray-400">{item.status}</span>
                     <div className={`w-12 h-3 rounded-full ${mapaCores[item.cor] || 'bg-gray-300'} shadow-sm group-hover:scale-110 transition-transform`}></div>
