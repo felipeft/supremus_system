@@ -13,11 +13,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173", 
-<<<<<<< HEAD
-        "https://supremus-system.vercel.app/" 
-=======
         "https://supremus-system.vercel.app" 
->>>>>>> cb59c3d6c9422770594c07e6f66336bad623a223
     ],
     allow_credentials=True,
     allow_methods=["*"],
