@@ -124,21 +124,31 @@ async def listar_os():
 
         for doc in docs:
             dados = doc.to_dict()
+            
+            # PROTEÇÃO: Se o prazo for None, usamos uma data bem antiga ou futura 
+            # para não quebrar o strptime()
+            prazo_raw = dados.get("data_limite_triagem") or dados.get("prazo") or "01/01/2000"
+            entrada_raw = dados.get("data_entrada") or "01/01/2000 00:00"
+
             lista_completa.append({
-                "os": dados.get("os_completa"),
-                "equipamento": f"{dados.get('marca')} {dados.get('modelo')}",
-                "cliente": dados.get("nome"),
-                "entrada": dados.get("data_entrada").split(" ")[0], # Apenas a data
-                "prazo": dados.get("data_limite_triagem"),
-                "status": dados.get("status"),
-                "cor": dados.get("cor_prioridade", "Verde") # Cor definida no cadastro
+                "os": dados.get("os_completa") or "S/N",
+                "equipamento": f"{dados.get('marca', '')} {dados.get('modelo', '')}".strip() or "Desconhecido",
+                "cliente": dados.get("nome") or "Cliente",
+                "entrada": entrada_raw.split(" ")[0],
+                "prazo": prazo_raw,
+                "status": dados.get("status") or "Triagem",
+                "cor": dados.get("cor_prioridade") or "Verde"
             })
 
+        # Filtragem segura: apenas itens que têm data válida conseguem ser ordenados
         em_andamento = [os for os in lista_completa if os["status"] != "Pronto"]
         finalizados = [os for os in lista_completa if os["status"] == "Pronto"]
 
-
-        em_andamento.sort(key=lambda x: datetime.strptime(x["prazo"], "%d/%m/%Y"))
+        # Ordenação com tratamento de erro
+        try:
+            em_andamento.sort(key=lambda x: datetime.strptime(x["prazo"], "%d/%m/%Y"))
+        except Exception as e:
+            print(f"Erro na ordenação: {e}. Verifique se há datas no formato errado.")
 
         return em_andamento + finalizados
 
