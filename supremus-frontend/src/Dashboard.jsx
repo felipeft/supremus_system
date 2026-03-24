@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, X, Save, Smartphone, User, FileText, AlertCircle, DollarSign, Clock, Printer } from 'lucide-react';
+import { Loader2, X, Save, Smartphone, User, FileText, AlertCircle, DollarSign, Clock, Printer, CheckCircle2 } from 'lucide-react';
 
 const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? "http://127.0.0.1:8000" : "https://supremus-system.onrender.com";
@@ -98,14 +98,14 @@ export default function Dashboard() {
               const info = getStatusInfo(item);
               return (
                 <tr key={item.os} onClick={() => setOsSelecionada(item)} className="hover:bg-blue-50/30 cursor-pointer transition-all group">
-                  <td className="p-5 font-black text-gray-300 group-hover:text-blue-500">#{item.os}</td>
+                  {/* AJUSTE DE CONTRASTE NO NÚMERO DA OS (DE 300 PARA 500) */}
+                  <td className="p-5 font-black text-gray-500 group-hover:text-blue-500">#{item.os}</td>
                   <td className="p-5 font-bold text-[#24414d] uppercase">{item.equipamento}</td>
                   <td className="p-5 text-gray-500 font-medium">{item.cliente}</td>
                   <td className="p-5 text-center font-black bg-yellow-50/50 text-[#24414d] text-base">
                     {info.cor === "Cinza" ? "---" : item.prazo}
                   </td>
                   <td className="p-5 text-right pr-8">
-                    {/* INDICADOR DE COR AMPLIADO COM PULSAÇÃO */}
                     <div className="flex justify-end items-center gap-3">
                       <div className={`
                         ${mapaCores[info.cor]} 
