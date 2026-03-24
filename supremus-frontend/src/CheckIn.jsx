@@ -199,7 +199,7 @@ export default function CheckIn() {
 
   const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]); // Brasil por padrão
   const [phoneDigits, setPhoneDigits] = useState(''); // dígitos puros sem máscara
-  const [acessorios, setAcessorios] = useState({ base: false, caixa: false, escovas: false, outros: false });
+  const [acessorios, setAcessorios] = useState({ base: false, kit_escovas: false, caixa_sac: false, acess_comp: false });
   const [osGerada, setOsGerada] = useState(null);
 
   const phoneValid = isPhoneValid(phoneDigits, selectedCountry);
@@ -380,7 +380,7 @@ export default function CheckIn() {
             <ClipboardList size={14} /> Acessórios Deixados
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {['base', 'caixa', 'escovas', 'outros'].map((item) => (
+            {['base', 'kit escovas', 'caixa / sac', 'acess. comp'].map((item) => (
               <label key={item} className="flex items-center gap-2 p-3 bg-gray-50 border border-gray-100 rounded-xl cursor-pointer hover:bg-blue-50 transition-all">
                 <input type="checkbox" name={item} checked={acessorios[item]} onChange={handleCheckbox} className="w-4 h-4 accent-[#24414d]" />
                 <span className="text-xs font-medium capitalize">{item}</span>
