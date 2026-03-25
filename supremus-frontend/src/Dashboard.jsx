@@ -150,7 +150,6 @@ export default function Dashboard() {
         )}
       </div>
 
-// Injeção de dependência para manipulação de registro individual
       {osSelecionada && (
         <ModalDetalhesFull 
           os={osSelecionada} 
