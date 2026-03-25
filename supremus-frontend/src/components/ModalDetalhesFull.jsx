@@ -13,7 +13,14 @@ export default function ModalDetalhesFull({ os, onClose, onSave }) {
     prazo_custom: os.prazo?.includes("/") ? "7 dias" : (os.prazo || "7 dias")
   });
 
-  // ESTADOS DE CONTROLE DE FLUXO
+// Listener para fechar modal com a tecla Esc
+  useEffect(() => {
+    const handleEsc = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
+
+// Controle de concorrência e integridade
   const [estaSalvando, setEstaSalvando] = useState(false);
   const [formModificado, setFormModificado] = useState(false);
 
@@ -32,6 +39,7 @@ export default function ModalDetalhesFull({ os, onClose, onSave }) {
     setFormModificado(true);
   };
 
+// Derivação de estados para UI
   const podeImprimirOrcamento = form.diagnostico_tecnico.trim().length > 5 && parseFloat(form.valor_reparo) > 0;
   const ehOrcamentoParaTriagem = form.status === "Triagem" && podeImprimirOrcamento;
 
@@ -44,27 +52,37 @@ export default function ModalDetalhesFull({ os, onClose, onSave }) {
     gerarOrcamentoPDF(os, form, nomeTecnico);
   };
 
+// Parsing reverso de strings para regeneração de PDF
   const handleImprimirReciboOriginal = () => {
     const nomes = os.cliente.split(' ');
-    const formDataPDF = { nome: nomes[0], sobrenome: nomes.slice(1).join(' '), whatsapp: os.whatsapp, marca: '', modelo: os.equipamento, numeroSerie: os.numeroSerie, relato: os.relato };
-    const acessObj = { base: os.acessorios?.toUpperCase().includes('BASE'), kit_escovas: os.acessorios?.toUpperCase().includes('KIT ESCOVAS'), caixa_sac: os.acessorios?.toUpperCase().includes('CAIXA'), acess_comp: os.acessorios?.toUpperCase().includes('ACESS') };
+    const formDataPDF = { 
+      nome: nomes[0], 
+      sobrenome: nomes.slice(1).join(' '), 
+      whatsapp: os.whatsapp, 
+      marca: '', 
+      modelo: os.equipamento, 
+      numeroSerie: os.numeroSerie, 
+      relato: os.relato 
+    };
+
+    const acessObj = { 
+      base: os.acessorios?.toUpperCase().includes('BASE'), 
+      kit_escovas: os.acessorios?.toUpperCase().includes('KIT ESCOVAS'), 
+      caixa_sac: os.acessorios?.toUpperCase().includes('CAIXA'), 
+      acess_comp: os.acessorios?.toUpperCase().includes('ACESS') 
+    };
+
     gerarReciboPDF(formDataPDF, { code: '' }, acessObj, os.os);
   };
 
-  // LOGICA UNIFICADA DE SALVAMENTO E IMPRESSÃO
+// Persistência com gatilho condicional de impressão
   const handleSalvarEDashboard = async () => {
     if (estaSalvando) return;
     
     setEstaSalvando(true);
     try {
-      // Chama a função de salvamento do componente pai (Dashboard.jsx)
       await onSave(form); 
-      
-      // Se for um orçamento completo em modo Triagem, dispara a impressão
-      if (ehOrcamentoParaTriagem) {
-        handleImprimirOrcamento();
-      }
-      
+      if (ehOrcamentoParaTriagem) handleImprimirOrcamento();
       setFormModificado(false);
     } catch (error) {
       alert("Erro ao salvar alterações.");
@@ -75,10 +93,8 @@ export default function ModalDetalhesFull({ os, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 bg-[#24414d]/70 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto font-sans">
-      
       <div className="bg-white w-full max-w-5xl rounded-[3rem] shadow-2xl flex flex-col my-auto border-t-[12px] border-[#24414d] overflow-hidden">
         
-        {/* Cabeçalho com botões de impressão condicionais */}
         <div className="p-8 bg-gray-50/50 border-b flex justify-between items-center text-[#24414d]">
           <div className="flex items-center gap-4">
             <div className="bg-[#24414d] text-[#f8e309] px-5 py-2 rounded-2xl font-black text-xl">#{os.os}</div>
@@ -89,11 +105,10 @@ export default function ModalDetalhesFull({ os, onClose, onSave }) {
               <FileText size={20} /> Recibo de Entrada
             </button>
 
-            {/* O botão de imprimir orçamento só fica habilitado se o dado já estiver salvo no banco (sem modificações pendentes) */}
             <button 
               onClick={handleImprimirOrcamento} 
               disabled={!podeImprimirOrcamento || formModificado} 
-              className={`p-4 rounded-2xl flex items-center gap-2 font-black text-xs uppercase transition-all ${podeImprimirOrcamento && !formModificado ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-100 text-gray-300'}`}
+              className={`p-4 rounded-2xl flex items-center gap-2 font-black text-xs uppercase transition-all ${podeImprimirOrcamento && !formModificado ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-300'}`}
             >
               <Printer size={20} /> {formModificado ? 'Salve para Imprimir' : 'Imprimir Orçamento'}
             </button>
@@ -103,7 +118,6 @@ export default function ModalDetalhesFull({ os, onClose, onSave }) {
         </div>
 
         <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh]">
-          {/* Fluxo de Status */}
           <section className="bg-white p-6 rounded-[2.5rem] border-2 border-gray-50 shadow-inner">
             <h4 className="text-[10px] font-black uppercase text-gray-300 mb-6 tracking-[0.2em] text-center">Gestão de Fluxo</h4>
             <div className="flex flex-wrap justify-center gap-3">

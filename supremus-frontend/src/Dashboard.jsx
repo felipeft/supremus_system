@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
-
-// IMPORTAÇÃO DO NOVO COMPONENTE MODULAR
 import ModalDetalhesFull from './components/ModalDetalhesFull';
 
+// Configuração de ambiente da API
 const API_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
   ? "http://127.0.0.1:8000" : "https://supremus-system.onrender.com";
 
@@ -14,27 +13,34 @@ export default function Dashboard() {
 
   const fetchDados = () => {
     setCarregando(true);
-    fetch(`${API_URL}/listar-os`).then(res => res.json()).then(data => { 
-      const ativos = data.filter(os => os.status !== "Pronto");
-      
-      ativos.sort((a, b) => {
-        const [dA, mA, yA] = a.prazo.split('/');
-        const [dB, mB, yB] = b.prazo.split('/');
-        const dateA = new Date(yA, mA - 1, dA);
-        const dateB = new Date(yB, mB - 1, dB);
-        if (dateA - dateB !== 0) return dateA - dateB;
-        const entryA = new Date(a.entrada_full.replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$2-$1'));
-        const entryB = new Date(b.entrada_full.replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$2-$1'));
-        return entryA - entryB;
-      });
+    fetch(`${API_URL}/listar-os`)
+      .then(res => res.json())
+      .then(data => { 
+        const ativos = data.filter(os => os.status !== "Pronto");
+        
+// Ordenação multinível: Prazo final e timestamp de entrada
+        ativos.sort((a, b) => {
+          const [dA, mA, yA] = a.prazo.split('/');
+          const [dB, mB, yB] = b.prazo.split('/');
+          const dateA = new Date(yA, mA - 1, dA);
+          const dateB = new Date(yB, mB - 1, dB);
+          
+          if (dateA - dateB !== 0) return dateA - dateB;
 
-      setListaOS(ativos); 
-      setCarregando(false); 
-    }).catch(() => setCarregando(false));
+          const entryA = new Date(a.entrada_full.replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$2-$1'));
+          const entryB = new Date(b.entrada_full.replace(/(\d+)\/(\d+)\/(\d+)/, '$3-$2-$1'));
+          return entryA - entryB;
+        });
+
+        setListaOS(ativos); 
+        setCarregando(false); 
+      })
+      .catch(() => setCarregando(false));
   };
 
   useEffect(() => { fetchDados(); }, []);
 
+// Regras de negócio para estados visuais e criticidade
   const getStatusInfo = (item) => {
     if (item.cor === "Cinza") return { texto: "Aguardando aprovação", cor: "Cinza", devePulsar: true };
     
@@ -54,7 +60,7 @@ export default function Dashboard() {
       else if (diff <= 10) { cor = "Amarelo"; devePulsar = true; }
       else if (diff <= 20) { cor = "Verde"; devePulsar = false; }
       else { cor = "Azul"; devePulsar = false; }
-    } else { // Triagem
+    } else {
       if (diff <= 1) { cor = "Vermelho"; devePulsar = true; }
       else if (diff <= 3) { cor = "Laranja"; devePulsar = true; }
       else if (diff <= 5) { cor = "Azul"; devePulsar = false; }
@@ -64,15 +70,26 @@ export default function Dashboard() {
     return { texto: `${item.status.toUpperCase()} (${textoDias})`, cor, devePulsar };
   };
 
+// Persistência de dados e atualização de grid
   const handleSalvarEdicao = async (id, dadosEditados) => {
     try {
       const res = await fetch(`${API_URL}/atualizar-os/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...dadosEditados, valor_aparelho: parseFloat(dadosEditados.valor_aparelho) || 0, valor_reparo: parseFloat(dadosEditados.valor_reparo) || 0 }),
+        body: JSON.stringify({ 
+          ...dadosEditados, 
+          valor_aparelho: parseFloat(dadosEditados.valor_aparelho) || 0, 
+          valor_reparo: parseFloat(dadosEditados.valor_reparo) || 0 
+        }),
       });
-      if (res.ok) { alert("✅ Alterações salvas!"); setOsSelecionada(null); fetchDados(); }
-    } catch { alert("Erro de conexão."); }
+      if (res.ok) { 
+        alert("✅ Alterações salvas!"); 
+        setOsSelecionada(null); 
+        fetchDados(); 
+      }
+    } catch { 
+      alert("Erro de conexão."); 
+    }
   };
 
   const mapaCores = { 
@@ -124,6 +141,7 @@ export default function Dashboard() {
             })}
           </tbody>
         </table>
+        
         {listaOS.length === 0 && (
           <div className="p-20 text-center flex flex-col items-center gap-4">
             <CheckCircle2 className="text-gray-200" size={64} />
@@ -132,7 +150,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* CHAMADA DO COMPONENTE MODULARIZADO */}
+// Injeção de dependência para manipulação de registro individual
       {osSelecionada && (
         <ModalDetalhesFull 
           os={osSelecionada} 
